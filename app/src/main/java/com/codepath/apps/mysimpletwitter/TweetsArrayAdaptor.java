@@ -49,10 +49,12 @@ public class TweetsArrayAdaptor extends ArrayAdapter<Tweet>{
 
         Date dtCreatedAt = null;
         String timeOfTweet = null;
+
         try {
             dtCreatedAt = sdf.parse(tweet.getCreatedAt());
             if(dtCreatedAt != null)
-                timeOfTweet = (String) DateUtils.getRelativeDateTimeString(getContext(), dtCreatedAt.getTime(), DateUtils.MINUTE_IN_MILLIS, DateUtils.WEEK_IN_MILLIS, 0);
+                //timeOfTweet = (String) DateUtils.getRelativeDateTimeString(getContext(), dtCreatedAt.getTime(), DateUtils.MINUTE_IN_MILLIS, DateUtils.WEEK_IN_MILLIS, 0);
+                timeOfTweet = (String) DateUtils.getRelativeTimeSpanString(dtCreatedAt.getTime(),System.currentTimeMillis(),DateUtils.SECOND_IN_MILLIS);
         } catch (ParseException e) {
             e.printStackTrace();
         }
