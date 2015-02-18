@@ -32,7 +32,9 @@ import java.util.ArrayList;
 public class TimelineActivity extends ActionBarActivity {
 
 
-    private TweetsListFragment fragmentTweetsList;
+   // private TweetsListFragment fragmentTweetsList;
+    private HomeTimeLineFragment homeTimeLineFragment;
+    private MentionsTimeLineFragment mentionsTimeLineFragment;
     private User user;
 
 
@@ -46,6 +48,9 @@ public class TimelineActivity extends ActionBarActivity {
         PagerSlidingTabStrip tabStrip = (PagerSlidingTabStrip)findViewById(R.id.tabs);
         tabStrip.setViewPager(vpPager);
         getMyUserObject();
+        //fragmentTweetsList = (TweetsListFragment)getSupportFragmentManager().findFragmentById(R.id.tweets_list_fragment);
+        //if(fragmentTweetsList == null)
+        //    Toast.makeText(this,"SOMETHING WENT WRONG",Toast.LENGTH_SHORT).show();
     }
 
     public void getMyUserObject()
@@ -107,7 +112,10 @@ public class TimelineActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 102) {
-            //if(resultCode == RESULT_OK)
+            if(resultCode == RESULT_OK){
+                homeTimeLineFragment.refreshList();
+                mentionsTimeLineFragment.refreshList();
+            }
              //   refreshTweets();
         }
     }
@@ -122,11 +130,13 @@ public class TimelineActivity extends ActionBarActivity {
         public Fragment getItem(int position) {
             if(position == 0)
             {
-                return new HomeTimeLineFragment();
+                homeTimeLineFragment = new HomeTimeLineFragment();
+                return homeTimeLineFragment;
             }
             else
             {
-                return new MentionsTimeLineFragment();
+                mentionsTimeLineFragment = new MentionsTimeLineFragment();
+                return mentionsTimeLineFragment;
             }
         }
 
