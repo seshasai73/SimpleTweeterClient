@@ -1,6 +1,7 @@
 package com.codepath.apps.mysimpletwitter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import com.codepath.apps.mysimpletwitter.models.Tweet;
 import com.squareup.picasso.Picasso;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -70,6 +72,18 @@ public class TweetsArrayAdaptor extends ArrayAdapter<Tweet>{
         tvBody.setText(tweet.getBody());
         ivProfileImage.setImageResource(android.R.color.transparent);
         Picasso.with(getContext()).load(tweet.getUser().getProfileImageUrl()).into(ivProfileImage);
+        ivProfileImage.setTag(R.id.ivProfileImage, tweet.getUser());
+        ivProfileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast.makeText(getContext(), "clicked", Toast.LENGTH_SHORT).show();
+
+                Intent i = new Intent(getContext(), ProfileActivity.class);
+                i.putExtra("user", (Serializable)v.getTag(R.id.ivProfileImage));
+                getContext().startActivity(i);
+            }
+        });
+
         //tvExp.setText(String.valueOf(tweet.getUid())+ "   "+ getCount());
         return convertView;
 

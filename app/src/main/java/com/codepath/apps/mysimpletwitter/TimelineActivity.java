@@ -1,6 +1,10 @@
 package com.codepath.apps.mysimpletwitter;
 
 import android.content.Intent;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -8,7 +12,11 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.activeandroid.util.Log;
+import com.astuetz.PagerSlidingTabStrip;
 import com.codepath.apps.mysimpletwitter.R;
+import com.codepath.apps.mysimpletwitter.fragments.HomeTimeLineFragment;
+import com.codepath.apps.mysimpletwitter.fragments.MentionsTimeLineFragment;
+import com.codepath.apps.mysimpletwitter.fragments.TweetsListFragment;
 import com.codepath.apps.mysimpletwitter.models.Tweet;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -21,56 +29,21 @@ import java.util.ArrayList;
 
 public class TimelineActivity extends ActionBarActivity {
 
-    private TwitterClient client;
-    private ArrayList<Tweet> tweets;
-    private TweetsArrayAdaptor aTweets;
-    private ListView lvTweets;
-    private long maxId = 0;
+
+    private TweetsListFragment fragmentTweetsList;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
-        lvTweets = (ListView)findViewById(R.id.lvTweets);
-        tweets = new ArrayList<>();
-        aTweets = new TweetsArrayAdaptor(this,tweets);
-        lvTweets.setAdapter(aTweets);
-        client = TwitterApplication.getRestClient();
-        maxId = 0;
-        refreshTweets();
-        lvTweets.setOnScrollListener(new EndlessScrollListener() {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount) {
-                getMoreTweets();
-            }
-        });
+        ViewPager vpPager = (ViewPager)findViewById(R.id.viewpager);
+        vpPager.setAdapter(new TweetsPagerAdaptor(getSupportFragmentManager()));
+        PagerSlidingTabStrip tabStrip = (PagerSlidingTabStrip)findViewById(R.id.tabs);
+        tabStrip.setViewPager(vpPager);
+    }
 
-    }
-    public void refreshTweets()
-    {
-        maxId = 0;
-        tweets.clear();
-        pupulateTimeline();
-    }
-    public void getMoreTweets()
-    {
-        maxId = tweets.get(tweets.size()-1).getUid();
-        pupulateTimeline();
-    }
-    private void pupulateTimeline() {
-        client.getHomeTimeline(maxId - 1,new JsonHttpResponseHandler(){
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                Log.d("DEBUG", response.toString());
-                aTweets.addAll(Tweet.fromJSONArray(response));
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                if(errorResponse != null)
-                Log.d("ERROR",errorResponse.toString());
-            }
-        });
-    }
 
 
     @Override
@@ -92,6 +65,10 @@ public class TimelineActivity extends ActionBarActivity {
             Intent i = new Intent(this,NewTweetActivity.class);
             startActivityForResult(i,102);
         }
+        if(id == R.id.action_profile){
+            Intent i = new Intent(this,ProfileActivity.class);
+            startActivityForResult(i,104);
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -105,8 +82,37 @@ public class TimelineActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 102) {
-            if(resultCode == RESULT_OK)
-                refreshTweets();
+            //if(resultCode == RESULT_OK)
+             //   refreshTweets();
+        }
+    }
+    public class TweetsPagerAdaptor extends FragmentPagerAdapter
+    {
+        private String tabTitles[] = {"HomeTimeLine","Mentions"};
+        public TweetsPagerAdaptor(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            if(position == 0)
+            {
+                return new HomeTimeLineFragment();
+            }
+            else
+            {
+                return new MentionsTimeLineFragment();
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return tabTitles.length;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return tabTitles[position];
         }
     }
 }
