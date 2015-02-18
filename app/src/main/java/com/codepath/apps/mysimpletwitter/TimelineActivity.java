@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.activeandroid.util.Log;
 import com.astuetz.PagerSlidingTabStrip;
@@ -18,6 +19,7 @@ import com.codepath.apps.mysimpletwitter.fragments.HomeTimeLineFragment;
 import com.codepath.apps.mysimpletwitter.fragments.MentionsTimeLineFragment;
 import com.codepath.apps.mysimpletwitter.fragments.TweetsListFragment;
 import com.codepath.apps.mysimpletwitter.models.Tweet;
+import com.codepath.apps.mysimpletwitter.models.User;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -31,6 +33,7 @@ public class TimelineActivity extends ActionBarActivity {
 
 
     private TweetsListFragment fragmentTweetsList;
+    private User user;
 
 
 
@@ -42,9 +45,26 @@ public class TimelineActivity extends ActionBarActivity {
         vpPager.setAdapter(new TweetsPagerAdaptor(getSupportFragmentManager()));
         PagerSlidingTabStrip tabStrip = (PagerSlidingTabStrip)findViewById(R.id.tabs);
         tabStrip.setViewPager(vpPager);
+        getMyUserObject();
     }
 
-
+    public void getMyUserObject()
+    {
+        TwitterClient client;
+        client = TwitterApplication.getRestClient();
+        client.getUserUserInfo(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+                user = User.fromJSON(response);
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (errorResponse != null)
+                    Log.d("ERROR", errorResponse.toString());
+            }
+        });
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -67,7 +87,12 @@ public class TimelineActivity extends ActionBarActivity {
         }
         if(id == R.id.action_profile){
             Intent i = new Intent(this,ProfileActivity.class);
-            startActivityForResult(i,104);
+            if(user == null)
+                Toast.makeText(this,"NOUSER",Toast.LENGTH_SHORT).show();
+            else {
+                i.putExtra("user", user);
+                startActivityForResult(i, 104);
+            }
         }
 
         return super.onOptionsItemSelected(item);

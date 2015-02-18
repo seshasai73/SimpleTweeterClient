@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.activeandroid.util.Log;
 import com.codepath.apps.mysimpletwitter.R;
@@ -56,7 +57,6 @@ public class ProfileActivity extends ActionBarActivity {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.flContainer, userTimeLineFragment);
             ft.commit();
-
         }
     }
 
